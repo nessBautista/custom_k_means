@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "image_id": "12074",
+    "iteration": 1,
+    "iteration_name": "Interactive Notebook Optimization",
+    "timestamp": "2024-10-26T00:00:00",
+    "paper_target_pri": 0.7674,
+    "previous_best_pri": null,
+    "total_combinations": 1,
+    "evaluation_strategy": "best_gt",
+    "description": "Best parameters found through interactive marimo notebook exploration. Achieved 0.7340 PRI with silhouette extraction (Method 1 - Canny), significantly better than grid search results."
+  },
+  "grid_config": {
+    "random_seed_values": [42],
+    "k_values": [4],
+    "iterations_values": [28],
+    "dt_values": [0.15],
+    "velocity_methods": ["curvature"],
+    "edge_lambda_values": [2.5],
+    "curvature_weight_values": [1.0],
+    "canny_low_values": [200],
+    "canny_high_values": [300]
+  },
+  "silhouette_config": {
+    "method": "canny_edges",
+    "closing_kernel": 5,
+    "closing_iterations": 2,
+    "min_area": 1000,
+    "line_thickness": 1,
+    "label_kernel": 3,
+    "smoothing_epsilon": 0.001
+  },
+  "best_result": {
+    "parameters": {
+      "random_seed": 42,
+      "k": 4,
+      "iterations": 28,
+      "dt": 0.15,
+      "velocity_method": "curvature",
+      "edge_lambda": 2.5,
+      "curvature_weight": 1.0,
+      "canny_low": 200,
+      "canny_high": 300
+    },
+    "metrics": {
+      "best_gt_pri": 0.734,
+      "best_gt_index": 3,
+      "avg_pri": 0.7024,
+      "pri_std": 0.0,
+      "gap_to_target": 0.0334,
+      "improvement": null
+    }
+  },
+  "results": [
+    {
+      "random_seed": 42,
+      "k": 4,
+      "iterations": 28,
+      "dt": 0.15,
+      "velocity_method": "curvature",
+      "edge_lambda": 2.5,
+      "curvature_weight": 1.0,
+      "canny_low": 200,
+      "canny_high": 300,
+      "best_gt_pri": 0.734,
+      "best_gt_index": 3,
+      "avg_pri": 0.7024,
+      "pri_std": 0.0,
+      "silhouette_method": "canny_edges",
+      "silhouette_kernel": 5,
+      "silhouette_iterations": 2,
+      "silhouette_min_area": 1000
+    }
+  ],
+  "notes": {
+    "pipeline_pri": 0.7024,
+    "silhouette_method1_pri": 0.734,
+    "silhouette_method2_pri": 0.6958,
+    "silhouette_method3_pri": 0.5674,
+    "best_silhouette_method": "Method 1 (Canny)",
+    "exceeds_target_by": -0.065,
+    "exceeds_target_pct": -8.47,
+    "source": "Interactive marimo notebook - manual parameter tuning",
+    "comparison_to_grid_search": "This result (PRI=0.734) is significantly better than grid search iteration 1 (PRI=0.6978) and iteration 2 (PRI=0.6783). Key differences: k=4 vs k=8/9, dt=0.15 vs dt=0.05, edge_lambda=2.5 vs 1.6-1.8"
+  }
+}

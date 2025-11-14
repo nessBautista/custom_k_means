@@ -1,0 +1,278 @@
+# Customized K-Means Segmentation - Default Parameters
+# Paper: "Customized K-Means Clustering Based Color Image Segmentation Measuring PRI"
+# Authors: Islam et al. (2021)
+
+# ============================================================================
+# K-Means Clustering Parameters (Stage 1)
+# ============================================================================
+kmeans:
+  # Number of clusters - Paper: "execute our customized algorithm several times for distinct values k"
+  # ✅ FROM PAPER: Test range [3, 4, 5, 6, 7], select best per image
+  n_clusters: 5
+
+  # Maximum iterations for convergence
+  max_iter: 300
+
+  # Convergence tolerance
+  tol: 1.0e-4
+
+  # Number of times k-means will be run with different centroid seeds
+  # ❌ NEEDS TUNING: Paper doesn't specify, affects stability
+  n_init: 10
+
+  # Random seed for reproducibility
+  random_state: 42
+
+  # Centroid initialization method
+  # ❌ NEEDS TUNING: Paper doesn't specify
+  # Options: 'k-means++' (smart), 'random' (basic)
+  init_method: 'k-means++'
+
+# ============================================================================
+# Level Set Evolution Parameters (Stage 2) - KEY INNOVATION
+# ============================================================================
+level_set:
+  # Number of evolution iterations
+  # ✅ FROM PAPER: "LEVEL_SET_ITERATIONS = 10"
+  iterations: 10
+
+  # Time step for evolution equation: dψ/dt = u⃗(y)
+  # ✅ FROM PAPER: "TIME_STEP = 0.5"
+  dt: 0.5
+
+  # Velocity field computation method
+  # ❌ CRITICAL - NEEDS DISCOVERY: Paper doesn't specify HOW to compute u⃗(y)
+  # Options:
+  #   - 'gradient': Edge-based (geodesic active contours style)
+  #   - 'region': Region statistics (Chan-Vese style)
+  #   - 'curvature': Smoothness-based
+  #   - 'combined': Hybrid approach (likely what paper uses)
+  velocity_method: 'gradient'
+
+  # Re-initialization interval (convert ψ back to signed distance function)
+  # ❌ NEEDS TUNING: Paper mentions "Fast Marching Method" but not frequency
+  # Value: How many iterations between re-initializations
+  reinit_interval: 5
+
+  # Smoothing parameter for Heaviside function
+  # ❌ NEEDS TUNING: Used in numerical implementation
+  # Smaller = sharper boundaries, Larger = smoother
+  epsilon: 1.0
+
+  # Weight for velocity components (if using 'combined' method)
+  # alpha * edge_velocity + (1-alpha) * region_velocity
+  alpha: 0.5
+
+# ============================================================================
+# Canny Edge Detection Parameters (Stage 3)
+# ============================================================================
+canny:
+  # Gaussian blur sigma before edge detection
+  # ❌ NEEDS TUNING: Paper mentions "Canny edge detector" but no params
+  sigma: 1.0
+
+  # Hysteresis thresholding - low threshold
+  # Edges with gradient below this are discarded
+  # ❌ NEEDS TUNING
+  low_threshold: 0.1
+
+  # Hysteresis thresholding - high threshold
+  # Edges with gradient above this are kept
+  # ❌ NEEDS TUNING
+  high_threshold: 0.2
+
+# ============================================================================
+# Contour Extraction Parameters (Visualization)
+# ============================================================================
+contour:
+  # Extraction method
+  # Options: 'external', 'thresholded_sobel', 'hierarchical', 'canny_based'
+  method: 'thresholded_sobel'
+
+  # For 'thresholded_sobel': Only show edges above this percentile
+  # Higher = fewer, cleaner contours
+  threshold_percentile: 80
+
+  # Morphological smoothing iterations
+  smooth_iterations: 3
+
+  # Minimum contour area (remove noise)
+  min_contour_area: 100
+
+  # Douglas-Peucker simplification factor
+  # Smaller = more detailed, Larger = more simplified
+  epsilon_factor: 0.002
+
+  # Invert colors (white background with dark edges - paper style)
+  invert: true
+
+# ============================================================================
+# PRI Evaluation Parameters
+# ============================================================================
+pri:
+  # Number of pixel pairs to sample (null = use all pairs)
+  # For large images, sampling speeds up computation
+  sample_size: null
+
+# ============================================================================
+# Dataset Configuration
+# ============================================================================
+dataset:
+  # Path to BSD500 dataset
+  # Relative to project root
+  dataset_path: "../research/custom_k_means/bsd500"
+
+  # Dataset split to use
+  # Options: 'train', 'val', 'test'
+  split: "test"
+
+  # Specific image IDs to process (null = all images in split)
+  # Paper's 10 test images from Table I
+  image_ids:
+    - "12074"
+    - "42044"
+    - "86016"
+    - "147091"
+    - "160068"
+    - "176035"
+    - "176039"
+    - "178054"
+    - "216066"
+    - "353013"
+
+# ============================================================================
+# Experiment Configuration
+# ============================================================================
+experiment:
+  # K values to test per image
+  # ✅ FROM PAPER: "execute our customized algorithm several times for distinct values k"
+  k_values: [3, 4, 5, 6, 7]
+
+  # Output directory for results
+  output_dir: "results/paper_reproduction"
+
+  # Save visualizations
+  save_visualizations: true
+
+  # Verbose output
+  verbose: true
+
+# ============================================================================
+# Grid Search Configuration (Parameter Discovery)
+# ============================================================================
+grid_search:
+  # Parameters to search over (for parameter discovery phase)
+  # This is used to find the missing parameters from the paper
+
+  param_grid:
+    # CRITICAL: Velocity field method
+    level_set.velocity_method:
+      - 'gradient'
+      - 'region'
+      - 'curvature'
+      - 'combined'
+
+    # Level set tuning
+    level_set.epsilon:
+      - 0.5
+      - 1.0
+      - 2.0
+
+    level_set.reinit_interval:
+      - 1
+      - 5
+      - 10
+
+    level_set.alpha:
+      - 0.3
+      - 0.5
+      - 0.7
+
+    # Canny edge detection
+    canny.sigma:
+      - 0.5
+      - 1.0
+      - 1.5
+      - 2.0
+
+    canny.low_threshold:
+      - 0.05
+      - 0.1
+      - 0.15
+
+    canny.high_threshold:
+      - 0.15
+      - 0.2
+      - 0.25
+      - 0.3
+
+    # K-means initialization
+    kmeans.init_method:
+      - 'random'
+      - 'k-means++'
+
+    kmeans.n_init:
+      - 1
+      - 5
+      - 10
+      - 20
+
+  # Early stopping tolerance
+  # Stop if |PRI - target| < tolerance
+  tolerance: 0.01
+
+  # Maximum combinations to test (null = test all)
+  max_combinations: null
+
+  # Number of parallel workers
+  n_jobs: 1
+
+# ============================================================================
+# Paper's Expected Results (Table I) - For Validation
+# ============================================================================
+paper_results:
+  "12074": 0.7674
+  "42044": 0.7970
+  "86016": 0.8083
+  "147091": 0.7510
+  "160068": 0.8295
+  "176035": 0.7676
+  "176039": 0.8380
+  "178054": 0.8556  # Best result
+  "216066": 0.8253
+  "353013": 0.7691
+
+  # Summary statistics
+  mean: 0.7992
+  std: 0.0324
+  min: 0.7510
+  max: 0.8556
+
+# ============================================================================
+# Notes on Parameters
+# ============================================================================
+#
+# ✅ KNOWN FROM PAPER:
+#   - level_set.iterations = 10
+#   - level_set.dt = 0.5
+#   - experiment.k_values = [3, 4, 5, 6, 7]
+#   - dataset.image_ids = [10 specific images]
+#
+# ❌ NEEDS DISCOVERY (Grid Search):
+#   - level_set.velocity_method (MOST CRITICAL!)
+#   - level_set.epsilon
+#   - level_set.reinit_interval
+#   - canny.sigma
+#   - canny.low_threshold
+#   - canny.high_threshold
+#   - kmeans.init_method
+#   - kmeans.n_init
+#
+# STRATEGY:
+# 1. Start with defaults above
+# 2. Run grid search on single image (12074)
+# 3. Find params that give PRI ≈ 0.7674
+# 4. Validate on all 10 images
+# 5. Fine-tune if needed
+#
+# ============================================================================
