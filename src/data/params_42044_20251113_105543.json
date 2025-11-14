@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "image_id": "42044",
+    "timestamp": "2025-11-13T10:55:43.696320",
+    "description": "contours_"
+  },
+  "parameters": {
+    "image_id": "42044",
+    "k_clusters": 9,
+    "velocity_method": "curvature_skimage",
+    "edge_stopping_method": null,
+    "dt": 0.25,
+    "n_iterations": 10,
+    "velocity_strength": 1.0,
+    "smoothing_param": 0.01,
+    "alpha": 100.0,
+    "sigma": 20.0,
+    "reinit_frequency": 6,
+    "silhouette_method": "find_contours"
+  },
+  "results": {
+    "pri_kmeans": 0.7209333330512047,
+    "pri_evolved": 0.7438999997735023,
+    "pri_improvement": 0.022966666722297635,
+    "pri_improvement_pct": 3.185685231822457,
+    "num_ground_truths": 6,
+    "contour_count": 2,
+    "foreground_ratio": 0.4640125387788939,
+    "extraction_time_ms": 0.3199577331542969
+  }
+}

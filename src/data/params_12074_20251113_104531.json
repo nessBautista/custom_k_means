@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "image_id": "12074",
+    "timestamp": "2025-11-13T10:45:31.819915",
+    "description": "save"
+  },
+  "parameters": {
+    "image_id": "12074",
+    "k_clusters": 5,
+    "velocity_method": "curvature_skimage",
+    "edge_stopping_method": null,
+    "dt": 0.01,
+    "n_iterations": 10,
+    "velocity_strength": 1.0,
+    "smoothing_param": 0.01,
+    "alpha": 100.0,
+    "sigma": 5.0,
+    "reinit_frequency": 5,
+    "silhouette_method": "labels"
+  },
+  "results": {
+    "pri_kmeans": 0.658299999473989,
+    "pri_evolved": 0.6593999994888902,
+    "pri_improvement": 0.0011000000149011813,
+    "pri_improvement_pct": 0.1670970706030883,
+    "num_ground_truths": 5,
+    "contour_count": 1,
+    "foreground_ratio": 0.40220594426201906,
+    "extraction_time_ms": 0.41294097900390625
+  }
+}
