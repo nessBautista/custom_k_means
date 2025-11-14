@@ -1,4 +1,4 @@
-# Custom K-Means
+# Custom K-Means Clustering
 
 ## Instalación
 
@@ -28,6 +28,8 @@ source .venv/bin/activate  # macOS/Linux
 .venv\Scripts\activate  # Windows
 ```
 
+# Modulos
+
 ## Funciones Utilitarias
 
 ### Módulo Data Loader
@@ -48,4 +50,26 @@ El módulo `src/viz` concentra toda la lógica de visualización para evitar car
 graph LR
     VIZ[Visualización] --> BSD[Display de imágenes BSD500]
     VIZ --> KMEANS[Display de resultados K-Means]
+```
+
+### Módulo K-Means Clustering
+
+El módulo `src/kmeans` proporciona un wrapper limpio sobre [sklearn.cluster.KMeans](https://scikit-learn.org/0.19/modules/generated/sklearn.cluster.KMeans.html) específicamente diseñado para segmentación de imágenes. Simplifica el flujo de trabajo al manejar automáticamente el reshaping de imágenes RGB, normalización de datos, y generación de imágenes segmentadas con colores cuantizados. El módulo expone tres componentes principales: `KMeansConfig` para configuración de parámetros (número de clusters, iteraciones, método de inicialización), la clase `KMeans` que encapsula el algoritmo de sklearn, y `process_images_batch()` para procesamiento eficiente de múltiples imágenes usando parámetros guardados en snapshots.
+
+```mermaid
+graph LR
+    KMEANS --> FIT[fit_image]
+    FIT --> SEGMENT[get_segmented_image]
+    KMEANS --> BATCH[process_images_batch]
+```
+
+### Módulo Level Set
+
+El módulo `src/level_set` refina las segmentaciones de K-Means mediante level set evolution, suavizando fronteras mientras las detiene en bordes fuertes de la imagen. Utiliza [scikit-fmm](https://github.com/scikit-fmm/scikit-fmm) para calcular signed distance functions mediante Fast Marching Method, transformando las etiquetas discretas de K-Means en representaciones continuas donde cada píxel almacena su distancia al borde del cluster más cercano. Para el cálculo de velocidad, emplea [scipy.ndimage](https://docs.scipy.org/doc/scipy/reference/ndimage.html) que proporciona herramientas fundamentales para implementar velocidades personalizadas de level set: cálculo de gradientes mediante filtros Sobel, estimación de curvatura por diferencias finitas, y funciones edge-stopping basadas en gradiente inverso gaussiano. El módulo ejecuta evolución iterativa con reinicialización periódica para mantener estabilidad numérica.
+
+```mermaid
+graph LR
+    LevelSet --> INIT[process_levelsets_batch]
+    LevelSet --> EVOLVE[process_evolution_batch]
+    LevelSet --> EXTRACT[extract_evolved_labels_batch]
 ```
