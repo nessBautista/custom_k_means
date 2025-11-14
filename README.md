@@ -73,3 +73,44 @@ graph LR
     LevelSet --> EVOLVE[process_evolution_batch]
     LevelSet --> EXTRACT[extract_evolved_labels_batch]
 ```
+
+### Módulo PRI (Probabilistic Rand Index)
+
+El módulo `src/pri` implementa el cálculo del **Probabilistic Rand Index (PRI)**, una métrica de evaluación de segmentación que no depende de bibliotecas externas. Esta es una implementación propia que compara la segmentación automática generada por el algoritmo con múltiples anotaciones humanas (ground truths) del dataset BSD500. El PRI cuantifica qué tan bien la segmentación automática coincide con el consenso humano mediante la fórmula: **PRI = (1/T) Σ [c_im × p_im + (1 - c_im) × (1 - p_im)]**, donde c_im indica si dos píxeles tienen la misma etiqueta en la segmentación automática, y p_im representa la probabilidad de que esos píxeles tengan la misma etiqueta según los ground truths. La implementación utiliza muestreo aleatorio de 10,000 pares de píxeles para eficiencia computacional y emplea un sistema de caché (PRICacheManager) para almacenar los valores de p_im y evitar recalcularlos en evaluaciones posteriores.
+
+#### Ejemplos de la Ecuación PRI
+
+La siguiente tabla muestra cómo diferentes casos contribuyen al score PRI final:
+
+| c_im | p_im | c_im × p_im | (1-c_im) × (1-p_im) | Contribución Total | Interpretación |
+|------|------|-------------|---------------------|--------------------|----------------|
+| 1 | 1.0 | 1.0 | 0.0 | **1.0** | Perfecto: segmentación coincide, GTs están de acuerdo |
+| 1 | 0.8 | 0.8 | 0.0 | **0.8** | Bueno: segmentación coincide, GTs mayormente de acuerdo |
+| 1 | 0.5 | 0.5 | 0.0 | **0.5** | Ambiguo: segmentación coincide, GTs divididos |
+| 0 | 0.5 | 0.0 | 0.5 | **0.5** | Ambiguo: segmentación difiere, GTs divididos |
+| 0 | 0.2 | 0.0 | 0.8 | **0.8** | Bueno: segmentación difiere, GTs mayormente difieren |
+| 0 | 0.0 | 0.0 | 1.0 | **1.0** | Perfecto: segmentación difiere, GTs están de acuerdo |
+
+**Notas:**
+- **c_im = 1**: Los píxeles i y m tienen la misma etiqueta en la segmentación (mismo cluster)
+- **c_im = 0**: Los píxeles i y m tienen diferentes etiquetas en la segmentación (clusters distintos)
+- **p_im**: Fracción de ground truths donde los píxeles tienen la misma etiqueta (e.g., 0.8 = 4 de 5 GTs)
+- **PRI final**: Promedio de las contribuciones de los 10,000 pares muestreados
+
+```mermaid
+graph LR
+    CACHE[PRICacheManager] --> EVALUATOR
+    EVALUATOR --> EVAL[evaluate]
+```
+
+### Módulo Canny Edge Detection
+
+El módulo `src/canny` implementa detección de bordes y extracción de siluetas para visualizar los límites de los clusters obtenidos. Utiliza el detector de bordes Canny de [OpenCV](https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html) (cv2.Canny) para identificar transiciones entre diferentes regiones de segmentación, implementando lo mencionado en el paper: *"we utilize the Canny edge detector to detect the edge information of the boundary of each cluster"*. El módulo proporciona dos componentes principales: **CannyEdgeDetector** que aplica el algoritmo Canny a las etiquetas de segmentación evolucionadas para detectar bordes precisos entre clusters, y **SilhouetteExtractor** que convierte los mapas de bordes en siluetas limpias mediante operaciones morfológicas (closing) y flood fill para cerrar gaps, seguido de cv2.findContours para extraer contornos externos que se rellenan completamente para crear máscaras binarias. El proceso completo incluye normalización de etiquetas, detección de bordes con umbrales configurables, cierre morfológico de gaps, extracción de contornos externos con cv2.findContours, relleno de contornos, y generación de máscaras binarias listas para visualización o comparación con ground truth.
+
+```mermaid
+graph LR
+    CANNY_CFG[CannyConfig] --> CANNY[CannyEdgeDetector]
+    CANNY --> DETECT[detect_edges]
+    SIL_CFG[SilhouetteConfig] --> FACTORY[create_silhouette_extractor]
+    FACTORY --> EXTRACT[extract]
+```
