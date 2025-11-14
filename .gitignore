@@ -1,3 +1,47 @@
 .DS_Store
 *.pyc
-experimental/src/data/bsd500
+
+# BSD500 Dataset - Ignore all except images used in application_demo.py
+# This keeps only 20 files (10 images + 10 ground truths) out of 1000 total files
+
+# Ignore everything in bsd500
+experimental/src/data/bsd500/**
+
+# But keep directory structure
+!experimental/src/data/bsd500/
+!experimental/src/data/bsd500/images/
+!experimental/src/data/bsd500/images/train/
+!experimental/src/data/bsd500/images/val/
+!experimental/src/data/bsd500/ground_truth/
+!experimental/src/data/bsd500/ground_truth/train/
+!experimental/src/data/bsd500/ground_truth/val/
+
+# Keep only the 10 images used in application_demo.py
+# Train images (7)
+!experimental/src/data/bsd500/images/train/12074.jpg
+!experimental/src/data/bsd500/images/train/42044.jpg
+!experimental/src/data/bsd500/images/train/176035.jpg
+!experimental/src/data/bsd500/images/train/176039.jpg
+!experimental/src/data/bsd500/images/train/178054.jpg
+!experimental/src/data/bsd500/images/train/216066.jpg
+!experimental/src/data/bsd500/images/train/353013.jpg
+
+# Val images (3)
+!experimental/src/data/bsd500/images/val/86016.jpg
+!experimental/src/data/bsd500/images/val/147091.jpg
+!experimental/src/data/bsd500/images/val/160068.jpg
+
+# Keep corresponding ground truth files
+# Train ground truths (7)
+!experimental/src/data/bsd500/ground_truth/train/12074.mat
+!experimental/src/data/bsd500/ground_truth/train/42044.mat
+!experimental/src/data/bsd500/ground_truth/train/176035.mat
+!experimental/src/data/bsd500/ground_truth/train/176039.mat
+!experimental/src/data/bsd500/ground_truth/train/178054.mat
+!experimental/src/data/bsd500/ground_truth/train/216066.mat
+!experimental/src/data/bsd500/ground_truth/train/353013.mat
+
+# Val ground truths (3)
+!experimental/src/data/bsd500/ground_truth/val/86016.mat
+!experimental/src/data/bsd500/ground_truth/val/147091.mat
+!experimental/src/data/bsd500/ground_truth/val/160068.mat
