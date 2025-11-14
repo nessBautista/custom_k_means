@@ -20,7 +20,7 @@ class DataLoader:
     Cargador de archivos JSON con parámetros y resultados guardados.
 
     Busca automáticamente archivos JSON en el directorio src/data/
-    del proyecto KmeansV3 y los parsea a objetos NotebookSnapshot.
+    del proyecto actual y los parsea a objetos NotebookSnapshot.
 
     Los archivos JSON siguen el formato:
         params_{image_id}_{timestamp}.json
@@ -46,14 +46,14 @@ class DataLoader:
         Inicializa el cargador de datos.
 
         La búsqueda del directorio de datos es automática y robusta:
-        - Si data_dir es None, busca automáticamente KmeansV3/src/data/
+        - Si data_dir es None, busca automáticamente src/data/
         - Primero busca desde el directorio actual
         - Luego busca en directorios padre
         - Si no encuentra, lanza FileNotFoundError
 
         Args:
             data_dir: Directorio donde buscar los archivos JSON.
-                     Si None, busca automáticamente en KmeansV3/src/data/.
+                     Si None, busca automáticamente src/data/ relativo al proyecto.
                      Útil para testing o rutas no estándar.
 
         Raises:
@@ -82,12 +82,11 @@ class DataLoader:
 
     def _find_data_directory(self) -> Path:
         """
-        Busca automáticamente el directorio KmeansV3/src/data/.
+        Busca automáticamente el directorio src/data/ del proyecto.
 
         Estrategia de búsqueda:
-        1. Si cwd es KmeansV3/, busca en ./src/data/
-        2. Si cwd contiene KmeansV3/, busca en ./KmeansV3/src/data/
-        3. Busca en directorios padre hasta encontrar KmeansV3/
+        1. Intenta con ./src/data/ desde el cwd actual
+        2. Repite el proceso caminando por los directorios padre
 
         Returns:
             Path: Ruta al directorio de datos
@@ -96,34 +95,22 @@ class DataLoader:
             FileNotFoundError: Si no se encuentra el directorio de datos
         """
         current = Path.cwd()
+        visited = []
 
-        # Caso 1: Estamos en KmeansV3/ (directorio raíz del proyecto)
-        if current.name == 'KmeansV3':
-            data_path = current / 'src' / 'data'
-            if data_path.exists():
-                return data_path
-
-        # Caso 2: KmeansV3/ es subdirectorio del directorio actual
-        if (current / 'KmeansV3').exists():
-            data_path = current / 'KmeansV3' / 'src' / 'data'
-            if data_path.exists():
-                return data_path
-
-        # Caso 3: Buscar hacia arriba en el árbol de directorios
-        for parent in current.parents:
-            candidate = parent / 'KmeansV3' / 'src' / 'data'
+        for directory in (current, *current.parents):
+            candidate = directory / 'src' / 'data'
+            visited.append(candidate)
             if candidate.exists():
                 return candidate
 
-        # No se encontró el directorio
+        searched = "\n".join(f"  - {path}" for path in visited)
         raise FileNotFoundError(
-            f"No se pudo encontrar el directorio KmeansV3/src/data/.\n"
+            "No se pudo encontrar el directorio src/data/.\n"
             f"Búsqueda iniciada desde: {Path.cwd()}\n"
-            f"Casos explorados:\n"
-            f"  1. {Path.cwd()}/src/data/ (si cwd es KmeansV3)\n"
-            f"  2. {Path.cwd()}/KmeansV3/src/data/\n"
-            f"  3. Directorios parent hasta encontrar KmeansV3\n"
-            f"Solución: Ejecuta desde KmeansV3/ o especifica data_dir manualmente."
+            f"Rutas exploradas:\n{searched}\n"
+            "Soluciones:\n"
+            "  * Ejecuta desde la raíz del repositorio donde exista src/data/\n"
+            "  * O especifica data_dir manualmente al crear DataLoader."
         )
 
     def _find_json_for_image(self, image_id: str) -> Optional[Path]:
@@ -142,7 +129,7 @@ class DataLoader:
         Example:
             >>> loader = DataLoader()
             >>> path = loader._find_json_for_image('12074')
-            >>> print(path)  # KmeansV3/src/data/params_12074_20251113_104531.json
+            >>> print(path)  # src/data/params_12074_20251113_104531.json
         """
         # Patrón de búsqueda: params_{image_id}_*.json
         pattern = f"params_{image_id}_*.json"
@@ -526,7 +513,7 @@ class DataLoader:
             >>> loader = DataLoader()
             >>> cache_path = loader.get_pri_cache_path()
             >>> print(cache_path)
-            >>> # KmeansV3/src/data/pri_cache.json
+            >>> # src/data/pri_cache.json
             >>>
             >>> # Usar con PRI evaluator
             >>> from src.pri import PRIConfig, PRICacheManager

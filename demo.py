@@ -12,10 +12,10 @@ def _():
 
     # Setup path para imports
     project_root = Path.cwd()
-    if project_root.name != 'KmeansV3':
-        # Si estamos en un directorio diferente, buscar KmeansV3
-        if (project_root / 'KmeansV3').exists():
-            project_root = project_root / 'KmeansV3'
+    if project_root.name != 'custom_k_means':
+        # Si estamos en un subdirectorio, buscar la raíz del proyecto
+        if (project_root / 'custom_k_means').exists():
+            project_root = project_root / 'custom_k_means'
 
     sys.path.insert(0, str(project_root))
 
