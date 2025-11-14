@@ -1,4 +1,32 @@
-# KmeansV3
+# Custom K-Means
+
+## Instalación
+
+Este proyecto utiliza [uv](https://docs.astral.sh/uv/) como gestor de paquetes y entornos virtuales de Python.
+
+### Instalar uv
+
+```bash
+# macOS y Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Para más opciones de instalación, consulta la [documentación oficial de uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+### Instalar dependencias del proyecto
+
+```bash
+# Instalar todas las dependencias definidas en pyproject.toml
+uv sync
+
+# Activar el entorno virtual creado por uv
+source .venv/bin/activate  # macOS/Linux
+# o
+.venv\Scripts\activate  # Windows
+```
 
 ## Funciones Utilitarias
 
